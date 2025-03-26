@@ -193,8 +193,8 @@
                                               </td>
                                               <td>{{ payment_request.created_date|date:"d/m/Y H:i" }}</td>
                                               <td>
-                                                  {% if payment_request.product %}
-                                                      {{ payment_request.product.title }}
+                                                  {% if payment_request.game_product %}
+                                                      {{ payment_request.game_product.title }}
                                                   {% else %}
                                                       <span class="text-muted">Продукт удален</span>
                                                   {% endif %}
