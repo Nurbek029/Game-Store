@@ -1,0 +1,251 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <title>Cyborg - Регистрация</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" />
+
+    <!-- Дополнительные стили -->
+    <link rel="stylesheet" href="{% static 'assets/css/fontawesome.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/owl.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/animate.css' %}" />
+    <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
+
+    <style>
+        :root {
+            --primary-blue: #1e3c72;
+            --secondary-blue: #2a5298;
+            --accent-blue: #1e88e5;
+            --light-blue: #e3f2fd;
+            --dark-blue: #0d47a1;
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+        }
+        
+        body {
+            background-color: var(--white);
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+        }
+        
+        .header-area {
+            background-color: var(--primary-blue);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav a {
+            color: var(--white);
+            transition: all 0.3s;
+        }
+        
+        .nav a:hover {
+            color: var(--light-blue);
+        }
+        
+        .search-input input {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            border: none;
+        }
+        
+        .search-input input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .search-input i {
+            color: var(--white);
+        }
+        
+        .login-form {
+            background-color: var(--white);
+            border: 1px solid var(--light-blue);
+            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.1);
+        }
+        
+        .heading-section h4 {
+            color: var(--dark-blue);
+            font-weight: 700;
+        }
+        
+        .heading-section h4 em {
+            color: var(--accent-blue);
+            font-style: normal;
+        }
+        
+        .main-border-button {
+            background-color: var(--accent-blue);
+            color: var(--white);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .main-border-button:hover {
+            background-color: var(--dark-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 136, 229, 0.3);
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 0.25rem rgba(30, 136, 229, 0.25);
+        }
+        
+        .alert {
+            border-radius: 8px;
+        }
+        
+        footer {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+        
+        footer a {
+            color: var(--light-blue);
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            color: var(--white);
+        }
+        
+        /* Стили для формы */
+        .login-form label {
+            color: var(--dark-blue);
+            font-weight: 500;
+        }
+        
+        .login-form input {
+            background-color: var(--light-gray);
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        
+        .text-decoration-underline {
+            color: var(--accent-blue);
+            font-weight: 500;
+        }
+        
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .login-form {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ***** Preloader Start ***** -->
+    <div id="js-preloader" class="js-preloader">
+        <div class="preloader-inner">
+            <span class="dot" style="background-color: var(--accent-blue);"></span>
+            <div class="dots">
+                <span style="background-color: var(--primary-blue);"></span>
+                <span style="background-color: var(--secondary-blue);"></span>
+                <span style="background-color: var(--dark-blue);"></span>
+            </div>
+        </div>
+    </div>
+    <!-- ***** Preloader End ***** -->
+
+    <!-- ***** Main Content Start ***** -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="page-content">
+                    <!-- Форма регистрации -->
+                    <div class="row justify-content-center">
+                        <div class="col-lg-6">
+                            {% if messages %}
+                                <div class="container mt-4">
+                                    {% for message in messages %}
+                                        <div class="alert
+                                            {% if message.tags == 'error' %}
+                                                alert-danger
+                                            {% elif message.tags == 'success' %}
+                                                alert-success
+                                            {% elif message.tags == 'warning' %}
+                                                alert-warning
+                                            {% else %}
+                                                alert-info
+                                            {% endif %}
+                                            alert-dismissible fade show" role="alert"
+                                        >
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="heading-section text-center mb-4">
+                                <h4><em>Создать</em> новый аккаунт</h4>
+                            </div>
+                            <div class="login-form p-4 rounded">
+                                <form action="." method="post">
+                                    {% csrf_token %}
+                                    {{ form.as_p }}
+                                    <div class="text-center mt-4">
+                                        <button type="submit" class="main-border-button">
+                                            Зарегистрироваться
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <div class="text-center mt-4">
+                                    <span>Уже есть аккаунт?</span>
+                                    <a href="#" class="text-decoration-underline ms-2">Войти</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Конец формы регистрации -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ***** Main Content End ***** -->
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <p>
+                        Copyright © 2036
+                        <a href="#">Cyborg Gaming</a>
+                        Company. Все права защищены.
+                        <br />
+                        Design:
+                        <a
+                            href="https://templatemo.com"
+                            target="_blank"
+                            title="free CSS templates"
+                            >TemplateMo</a
+                        >
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/js/isotope.min.js' %}"></script>
+    <script src="{% static 'assets/js/owl-carousel.js' %}"></script>
+    <script src="{% static 'assets/js/counter.js' %}"></script>
+    <script src="{% static 'assets/js/custom.js' %}"></script>
+</body>
+</html>

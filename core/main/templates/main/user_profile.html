@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  /* Основные стили */
+  .main-profile {
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 30px;
+    margin-bottom: 30px;
+  }
+  
+  .main-info h4 {
+    color: #1e3c72;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  
+  .main-info span {
+    background-color: #1e88e5;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .main-info p {
+    color: #666;
+    margin: 15px 0;
+  }
+  
+  /* Кнопки */
+  .main-border-button a {
+    background-color: #1e88e5;
+    color: white;
+    border-radius: 8px;
+    padding: 12px 25px;
+    display: inline-block;
+    transition: all 0.3s;
+    border: none;
+  }
+  
+  .main-border-button a:hover {
+    background-color: #1565c0;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(30, 136, 229, 0.3);
+  }
+  
+  .border-no-active a {
+    background-color: #f5f9ff;
+    color: #1e88e5;
+    border: 1px solid #1e88e5;
+  }
+  
+  /* Список статистики */
+  .main-profile ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .main-profile ul li {
+    margin-bottom: 15px;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .main-profile ul li span {
+    float: right;
+    background-color: #e3f2fd;
+    color: #1e88e5;
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 13px;
+  }
+  
+  /* Секция способов оплаты */
+  .clips {
+    margin-top: 40px;
+  }
+  
+  .heading-section h4 {
+    color: #0d47a1;
+    font-weight: 700;
+    margin-bottom: 30px;
+  }
+  
+  .heading-section h4 em {
+    font-style: normal;
+    color: #1e88e5;
+  }
+  
+  /* Карточки способов оплаты */
+  .item {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(30, 136, 229, 0.1);
+    border-color: #1e88e5;
+  }
+  
+  .thumb img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .down-content h4 {
+    color: #1565c0;
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+  
+  .down-content span {
+    color: #666;
+    font-size: 14px;
+  }
+  
+  /* Библиотека платежей */
+  .gaming-library {
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  }
+  
+  .gaming-library .item {
+    border-left: 3px solid #1e88e5;
+  }
+  
+  .gaming-library ul {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .gaming-library ul li {
+    flex: 1;
+    min-width: 150px;
+    margin-bottom: 15px;
+    padding: 0 10px;
+  }
+  
+  .gaming-library ul li h4 {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  
+  .gaming-library ul li span {
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .templatemo-item {
+    max-width: 80px;
+    border-radius: 8px;
+  }
+</style>
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="page-content">
+
+        <!-- ***** Banner Start ***** -->
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="main-profile">
+              <div class="row">
+                <div class="col-lg-4">
+                  <img src="https://i.pinimg.com/736x/60/39/cd/6039cd7c45b4fcd1dee60ce39f0137a1.jpg" alt="Profile" style="border-radius: 15px; border: 3px solid #e3f2fd;">
+                </div>
+                <div class="col-lg-4 align-self-center">
+                  <div class="main-info header-text">
+                    <span>{% if request.user.is_online %}Online{% else %}Offline{% endif %}</span>
+                    <h4>
+                      {{ request.user.first_name }}
+                      {% if request.user.last_name %}
+                        {{ request.user.last_name }}
+                      {% endif %}
+                    </h4>
+                    <p>Manage your payment methods and transactions below.</p>
+                  </div>
+                </div>
+                <div class="col-lg-4 align-self-center">
+                  <ul>
+                    <li>Total Transactions <span>{{ payment_requests.count }}</span></li>
+                    <li>Completed <span>{{ completed_payments }}</span></li>
+                    <li>Pending <span>{{ pending_payments }}</span></li>
+                    <li>Rejected <span>{{ rejected_payments }}</span></li>
+                  </ul>
+                </div>
+              </div>
+              
+              <!-- Способы оплаты -->
+              <div class="row">
+                <div class="col-lg-12">
+                  <div class="clips">
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <div class="heading-section">
+                          <h4><em>Payment</em> Methods</h4>
+                        </div>
+                      </div>
+                      {% for payment_method in request.user.payment_methods.all %}
+                        <div class="col-lg-3 col-sm-6">
+                          <div class="item">
+                            <div class="thumb">
+                              <img src="{{ payment_method.qr_image.url }}" alt="{{ payment_method.title }}">
+                            </div>
+                            <div class="down-content">
+                              <h4>{{ payment_method.title }}</h4>
+                              <span><i class="fa fa-qrcode"></i> Scan to pay</span>
+                            </div>
+                          </div>
+                        </div>
+                      {% empty %}
+                        <div class="col-lg-12">
+                          <p>No payment methods added yet.</p>
+                        </div>
+                      {% endfor %}
+                      <div class="col-lg-12">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ***** Banner End ***** -->
+
+        <!-- ***** Payment History ***** -->
+        <div class="gaming-library profile-library">
+          <div class="col-lg-12">
+            <div class="heading-section">
+              <h4><em>Payment</em> History</h4>
+            </div>
+            {% for payment_request in payment_requests %}
+              <div class="item">
+                <ul>
+                  <li><img src="{{ payment_request.check_image.url }}" alt="Receipt" class="templatemo-item"></li>
+                  <li><h4>Customer</h4><span>{{ payment_request.user.first_name }}</span></li>
+                  <li><h4>Date</h4><span>{{ payment_request.created_date|date:"d/m/Y H:i" }}</span></li>
+                  <li><h4>Product</h4><span>{{ payment_request.product }}</span></li>
+                  <li><h4>Status</h4>
+                    <span class="badge 
+                      {% if payment_request.status == 'completed' %}bg-success
+                      {% elif payment_request.status == 'pending' %}bg-warning
+                      {% else %}bg-danger{% endif %}">
+                      {{ payment_request.get_status_display }}
+                    </span>
+                  </li>
+                  <li>
+                    <div class="main-border-button border-no-active">
+                      <a download href="{{ payment_request.check_image.url }}">Download</a>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            {% empty %}
+              <div class="item">
+                <p>No payment history yet.</p>
+              </div>
+            {% endfor %}
+            <div class="col-lg-12">
+              <div class="main-button">
+                <a href="{% url 'payment_requests' %}">View All</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ***** Payment History End ***** -->
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

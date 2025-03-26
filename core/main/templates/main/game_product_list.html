@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  .main-banner {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border-radius: 10px;
+    padding: 40px;
+    margin-bottom: 30px;
+    color: white;
+  }
+
+  .main-banner h6 {
+    color: #4fc3f7;
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .main-banner h4 {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .main-banner em {
+    font-style: normal;
+    color: #4fc3f7;
+  }
+
+  .btn-primary {
+    background-color: #1e88e5;
+    border-color: #1e88e5;
+  }
+
+  .btn-outline-light {
+    border-color: white;
+    color: white;
+  }
+
+  .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+  }
+
+  .card-img-top {
+    height: 180px;
+    object-fit: cover;
+  }
+
+  .card-title {
+    font-weight: 600;
+    color: #1565c0;
+  }
+
+  .heading-section h4 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0d47a1;
+    margin-bottom: 20px;
+  }
+
+  .heading-section h4 em {
+    font-style: normal;
+    color: #1e88e5;
+  }
+
+  .page-link {
+    color: #1e88e5;
+  }
+
+  .page-item.active .page-link {
+    background-color: #1e88e5;
+    border-color: #1e88e5;
+  }
+
+  .alert {
+    border-radius: 8px;
+  }
+
+  .filter-form {
+    background: #f5f9ff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+  }
+</style>
+
+<div class="container my-4">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="page-content">
+
+        <!-- Вывод сообщений (ошибок, успеха и т.д.) -->
+        {% if messages %}
+          <div class="mt-4">
+            {% for message in messages %}
+              <div class="alert
+                {% if message.tags == 'error' %}
+                  alert-danger
+                {% elif message.tags == 'success' %}
+                  alert-success
+                {% elif message.tags == 'warning' %}
+                  alert-warning
+                {% else %}
+                  alert-info
+                {% endif %}
+                alert-dismissible fade show" role="alert"
+              >
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Баннер / Заголовок каталога -->
+        <div class="main-banner">
+          <div class="row">
+            <div class="col-lg-7">
+              <div class="header-text">
+                <h6>WELCOME TO LUGX</h6>
+                <h4><em>BEST GAMING</em> SITE EVER!</h4>
+                <p style="color: #4fc3f7;">LUGX Gaming is free Bootstrap 5 HTML CSS website template for your gaming websites. You can download and use this layout for commercial purposes.</p>
+                <div class="main-button mt-3">
+                  <a href="{% url 'catalog' %}" class="btn btn-outline-light">Посмотреть все</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Форма фильтрации (django-filter) -->
+        <form method="get" class="filter-form">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <h3 style="color: #1e88e5;">LUGX</h3>
+              {{ game_products.form.title }}
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Категория</label>
+              {{ game_products.form.category }}
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Цена</label>
+              {{ game_products.form.price }}
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary w-100">Поиск</button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Самые популярные -->
+        <div class="most-popular">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="heading-section">
+                <h4><em>Самые популярные</em> прямо сейчас</h4>
+              </div>
+              <div class="row g-4">
+                {% for game_product in page_obj %}
+                  <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a href="{% url 'game_product_detail' game_product.id %}" class="text-decoration-none">
+                      <div class="card h-100">
+                        <img src="{{ game_product.main_image.url }}" class="card-img-top" alt="{{ game_product.title }}">
+                        <div class="card-body">
+                          <h5 class="card-title mb-2">{{ game_product.title }}</h5>
+                          <p class="text-muted mb-2">{{ game_product.category }}</p>
+                          <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary">${{ game_product.price }}</span>
+                            <ul class="list-inline mb-0">
+                              <li class="list-inline-item">
+                                <i class="fa fa-star text-warning"></i>
+                                <!-- Отображаем средний рейтинг для каждого продукта -->
+                                <b>{{ game_product.avg_rating|default:"Нет рейтинга" }}</b>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Пагинация -->
+        <div class="pagination-block mt-5">
+          <nav aria-label="Пагинация">
+            <ul class="pagination justify-content-center">
+              {% if page_obj.has_previous %}
+                <!-- Первая страница -->
+                <li class="page-item">
+                  <a class="page-link" href="?page=1" aria-label="Первая страница">
+                    <span aria-hidden="true">&laquo;</span>
+                  </a>
+                </li>
+                <!-- Предыдущая страница -->
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Предыдущая страница">
+                    <span aria-hidden="true">&lsaquo;</span>
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <span class="page-link">&laquo;</span>
+                </li>
+                <li class="page-item disabled">
+                  <span class="page-link">&lsaquo;</span>
+                </li>
+              {% endif %}
+
+              <!-- Номера страниц -->
+              {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                  <li class="page-item active" aria-current="page">
+                    <span class="page-link">{{ num }}</span>
+                  </li>
+                {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+                <!-- Следующая страница -->
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Следующая страница">
+                    <span aria-hidden="true">&rsaquo;</span>
+                  </a>
+                </li>
+                <!-- Последняя страница -->
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Последняя страница">
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <span class="page-link">&rsaquo;</span>
+                </li>
+                <li class="page-item disabled">
+                  <span class="page-link">&raquo;</span>
+                </li>
+              {% endif %}
+            </ul>
+          </nav>
+          <p class="text-center mt-3 text-muted">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

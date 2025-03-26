@@ -1,0 +1,472 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+  <style>
+    /* Стили для звездного рейтинга */
+    .star-rating {
+      direction: rtl;
+      font-size: 2em;
+      unicode-bidi: bidi-override;
+      display: inline-block;
+    }
+    .star-rating input {
+      display: none;
+    }
+    .star-rating label {
+      color: #ccc;
+      cursor: pointer;
+    }
+    .star-rating input:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+      color: gold;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content .form-group {
+    margin-bottom: 1rem;
+}
+
+  .modal-content label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+  .modal-content input,
+  .modal-content textarea,
+  .modal-content select {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #333;
+    border: 1px solid #555;
+    color: #fff;
+}
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .quantity-container {
+      display: flex;
+      align-items: center;
+      margin: 15px 0;
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .quantity-btn {
+      background-color: #f0f0f0;
+      border: none;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .quantity-btn:hover {
+      background-color: #e0e0e0;
+    }
+
+    .quantity-input {
+      width: 50px;
+      height: 30px;
+      text-align: center;
+      border: none;
+      border-left: 1px solid #ccc;
+      border-right: 1px solid #ccc;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.375rem 0.75rem;
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+    }
+
+    .btn-primary {
+      background-color: #120fd6;
+      border-color: #0f0508;
+    }
+
+    .btn-primary:hover {
+      background-color: #3119b9;
+      border-color: #11060a;
+    }
+  </style>
+
+<div id="myModal" class="modal">
+  <div class="modal-content" style="background-color: #edacf5;">
+    <span class="close">&times;</span>
+    <center>
+      <h4>Ответ на отзыв</h4>
+      <form action="" method="post">
+        {% csrf_token %}
+        <textarea name="comment"></textarea><br>
+        <button type="submit">Отправить</button>
+      </form>
+    </center>
+  </div>
+</div>
+
+<!-- Модальное окно редактирования продукта -->
+<div class="modal fade" id="cyborgModal" tabindex="-1" aria-labelledby="cyborgModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background-color: #1f1f1f; border: 1px solid #333; color: #fff;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cyborgModalLabel">Редактирование продукта</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="filter: invert(1);"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="{% url 'game_product_update' game_product.id %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ game_product_update_form.as_p }}
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="page-content">
+        <div class="page-heading header-text">
+          <div class="container">
+            <div class="row">
+              <div class="col-lg-12">
+                <h3>{{ game_product.title }}</h3>
+                <span class="breadcrumb"></span>
+              </div>
+              <span style="font-size: 24px; color: #fff;">
+                <i class="fa fa-star" style="color: yellow;"></i>
+                {% if rating_avg %}
+                  {{ rating_avg }}
+                {% else %}
+                  Отзывов пока нет
+                {% endif %}
+              </span>
+            </div>      
+          </div>
+        </div>
+        {% if messages %}
+        <div class="container mt-4">
+          {% for message in messages %}
+            <div class="alert
+              {% if message.tags == 'error' %}
+                alert-danger
+              {% elif message.tags == 'success' %}
+                alert-success
+              {% elif message.tags == 'warning' %}
+                alert-warning
+              {% else %}
+                alert-info
+              {% endif %}
+              alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+        <div class="single-game_game_product section">
+          <div class="container">
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="heading-section">
+                  {% if request.user.is_staff %}
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cyborgModal">Изменить</button>
+                    <form action="{% url 'game_product_delete' game_product.id %}" method="post" style="display:inline;">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите удалить этот продукт?');" >
+                        Удалить
+                      </button>
+                    </form>
+                  {% endif %}
+                </div>
+                <div class="left-image">
+                  <img src="{{ game_product.main_image.url }}" alt="">
+                </div>
+              </div>
+              <div class="col-lg-6 align-self-center">
+                <h4>{{ game_product.title }}</h4>   
+                <ul>
+                  <li><b>Жанр:</b> {{ game_product.category }}</li>
+                  <li><span class="price"><e><b>Цена: </b> {{ game_product.price }} $</span></li>
+                </ul>
+                <form id="add-to-cart-form" action="{% url 'game_product_payment_create' game_product.id %}">
+                  {% csrf_token %}
+                  <div class="quantity-container">
+                    <label for="quantity">Количество:</label>
+                    <div class="quantity-controls">
+                      <button type="button" class="quantity-btn minus">-</button>
+                      <input type="number" id="quantity" name="quantity" value="1" min="1" max="99" class="quantity-input">
+                      <button type="button" class="quantity-btn plus">+</button>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary"><i class="fa fa-shopping-bag"></i> В КОРЗИНУ</button>
+                </form>
+              </div>
+              <div class="col-lg-12">
+                <div class="sep"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="more-info">
+          <div class="container">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="tabs-content">
+                  <div class="row">
+                    <div class="nav-wrapper ">
+                      <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="description" aria-selected="true">Описание</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">Отзывы</button>
+                        </li>
+                      </ul>
+                    </div>              
+                    <div class="tab-content" id="myTabContent">
+                      <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+                        <p>{{ game_product.description }}</p>
+                      </div>
+                      <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                        <!-- Блок для отображения уже существующих отзывов -->
+                        <div class="col-lg-12" style="margin-bottom: 20px;">
+                          {% for rating in game_product_comments %}
+                            <div style="background-color: rgba(163, 163, 163, 0.473); padding: 15px; margin-bottom: 15px; border-radius: 5px;">
+                              <strong style="color: #0004ff">{{ rating.user.first_name }}</strong><br>
+                              <p style="color: #050101;">{{ rating.comment }}</p>
+                              <p style="color: #000000;">Оценка: {{ rating.count }}</p>
+                              {% if request.user.is_staff %}
+                                <button id="myBtn{{ rating.id }}" class="btn btn-primary" style="margin-top: 10px;">Ответить</button>
+                              {% endif %}
+                            </div>
+                            
+                            <!-- Модальное окно для ответа -->
+                            <div id="myModal{{ rating.id }}" class="modal" style="display: none;">
+                              <div class="modal-content" style="background-color: #2a1b7e; padding: 20px; border-radius: 8px;">
+                                <span class="close" data-modal-id="myModal{{ rating.id }}"
+                                      style="cursor: pointer; float: right; font-weight: bold; font-size: 24px;">&times;</span>
+                                <center>
+                                  <h4>Ответ на отзыв</h4>
+                                  <form action="{% url 'rating_answer_create' rating.id %}" method="post">
+                                    {% csrf_token %}
+                                    <textarea name="comment" rows="4" cols="40" style="margin-bottom: 10px;"></textarea><br>
+                                    <button type="submit" class="btn btn-success">Отправить</button>
+                                  </form>
+                                </center>
+                              </div>
+                            </div>
+
+                            {% if rating.rating_answers.all %}
+                              <div style="margin-left: 40px; margin-top: -10px; margin-bottom: 20px;">
+                                {% for rating_answer in rating.rating_answers.all %}
+                                  <div style="
+                                    background-color: gray;
+                                    padding: 10px;
+                                    margin-bottom: 10px;
+                                    border-radius: 5px;
+                                    border-left: 4px solid #50219c;
+                                  ">
+                                    <strong style="color: #2d1b96;">
+                                      {% if rating_answer.user %}
+                                        {{ rating_answer.user.first_name }} отвечает:
+                                      {% else %}
+                                        Ответ:
+                                      {% endif %}
+                                    </strong>
+                                    <p style="color: #110f0f; margin: 5px 0 0 0;">
+                                      {{ rating_answer.comment }}
+                                    </p>
+                                  </div>
+                                {% endfor %}
+                              </div>
+                            {% endif %}
+                          {% empty %}
+                            <p>Пока нет отзывов.</p>
+                          {% endfor %}
+
+                          <!-- Форма для добавления нового отзыва -->
+                          {% if user.is_authenticated %}
+                            <form action="{% url 'rating_create' game_product.id %}" method="post">
+                              {% csrf_token %}
+                              <h2>Оставьте отзыв о продукте</h2>
+                              <div>
+                                <label for="comment">Комментарий:</label><br>
+                                <textarea id="comment" name="comment" rows="5" cols="50" placeholder="Введите ваш отзыв"></textarea>
+                              </div>
+                              <div>
+                                <label>Оценка:</label><br>
+                                <div class="star-rating">
+                                  <input type="radio" id="star5" name="count" value="5" required>
+                                  <label for="star5" title="5 звезд">&#9733;</label>
+                                  <input type="radio" id="star4" name="count" value="4" required>
+                                  <label for="star4" title="4 звезды">&#9733;</label>
+                                  <input type="radio" id="star3" name="count" value="3" required>
+                                  <label for="star3" title="3 звезды">&#9733;</label>
+                                  <input type="radio" id="star2" name="count" value="2" required>
+                                  <label for="star2" title="2 звезды">&#9733;</label>
+                                  <input type="radio" id="star1" name="count" value="1" required>
+                                  <label for="star1" title="1 звезда">&#9733;</label>
+                                </div>
+                              </div>
+                              <div>
+                                <button type="submit" class="btn btn-primary">Отправить отзыв</button>
+                              </div>
+                            </form>
+                          {% else %}
+                            <p>Чтобы оставить отзыв, пожалуйста, <a href="{% url 'login' %}">войдите</a> в систему.</p>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section categories related-games">
+          <div class="container">
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="section-heading">
+                  <h6>Похожие игры</h6>
+                  <h2>Рекомендуем</h2>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              {% for similar_game_product in similar_game_products %}
+                <div class="col-lg-3 col-sm-6 col-xs-12">
+                  <div class="item">
+                    <h4>{{ similar_game_product.title }}</h4>
+                    <div class="thumb">
+                      <a href="{% url 'game_product_detail' similar_game_product.id %}">
+                        <img src="{{ similar_game_product.main_image.url }}" alt="">
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Обработка модальных окон для ответов на отзывы
+    const replyButtons = document.querySelectorAll("[id^='myBtn']");
+    replyButtons.forEach(button => {
+      button.addEventListener("click", function() {
+        const modalId = button.id.replace('myBtn', 'myModal');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.style.display = 'block';
+        }
+      });
+    });
+
+    // Закрытие модальных окон
+    const closeElements = document.querySelectorAll(".close");
+    closeElements.forEach(closeEl => {
+      closeEl.addEventListener("click", function() {
+        const modalId = closeEl.getAttribute("data-modal-id");
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.style.display = 'none';
+        }
+      });
+    });
+
+    // Закрытие модалки по клику вне её области
+    window.addEventListener("click", function(event) {
+      const allModals = document.querySelectorAll(".modal");
+      allModals.forEach(m => {
+        if (event.target === m) {
+          m.style.display = "none";
+        }
+      });
+    });
+
+    // Обработка количества товара
+    const minusBtn = document.querySelector('.minus');
+    const plusBtn = document.querySelector('.plus');
+    const quantityInput = document.querySelector('.quantity-input');
+    
+    minusBtn.addEventListener('click', function() {
+      let value = parseInt(quantityInput.value);
+      if (value > 1) {
+        quantityInput.value = value - 1;
+      }
+    });
+    
+    plusBtn.addEventListener('click', function() {
+      let value = parseInt(quantityInput.value);
+      if (value < 99) {
+        quantityInput.value = value + 1;
+      }
+    });
+
+    // Обработка формы добавления в корзину
+    const addToCartForm = document.getElementById('add-to-cart-form');
+    if (addToCartForm) {
+      addToCartForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const quantity = document.getElementById('quantity').value || 1;
+        window.location.href = `{% url 'game_product_payment_create' game_product.id %}?quantity=${quantity}`;
+      });
+    }
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  /* Общий контейнер */
+  .payment-page-container {
+    color: #333;
+    margin-top: 40px;
+  }
+
+  /* Заголовок */
+  .payment-page-container h2 {
+    color: #1e88e5;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  /* Описание */
+  .payment-page-container p {
+    color: #666;
+    margin-bottom: 30px;
+  }
+
+  /* Карточки способов оплаты */
+  .payment-method-card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 25px 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 8px rgba(30, 136, 229, 0.1);
+  }
+
+  .payment-method-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(30, 136, 229, 0.15);
+    border-color: #1e88e5;
+  }
+
+  .payment-method-card img {
+    max-width: 80px;
+    margin-bottom: 15px;
+    height: 50px;
+    object-fit: contain;
+  }
+
+  .payment-method-card p {
+    margin: 0;
+    color: #1565c0;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  /* Форма оплаты */
+  .payment-form-container {
+    background-color: #f5f9ff;
+    border-radius: 10px;
+    padding: 30px;
+    margin-top: 30px;
+  }
+
+  /* Инпут и кнопка */
+  .check-input {
+    max-width: 400px;
+    margin: 0 auto;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    color: #333;
+    border-radius: 8px;
+  }
+
+  .check-input:focus {
+    outline: none;
+    border-color: #1e88e5;
+    box-shadow: 0 0 5px rgba(30, 136, 229, 0.3);
+  }
+
+  .pay-button {
+    background-color: #1e88e5;
+    border-color: #1e88e5;
+    margin-top: 20px;
+    padding: 10px 30px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s;
+  }
+
+  .pay-button:hover {
+    background-color: #1565c0;
+    border-color: #1565c0;
+    transform: translateY(-2px);
+  }
+
+  /* Кнопки количества */
+  .quantity-control {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .quantity-btn {
+    background-color: #e3f2fd;
+    color: #1e88e5;
+    border: 1px solid #bbdefb;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .quantity-btn:hover {
+    background-color: #bbdefb;
+  }
+
+  .quantity-input {
+    width: 60px;
+    height: 40px;
+    text-align: center;
+    margin: 0 10px;
+    border: 1px solid #bbdefb;
+    border-radius: 5px;
+    font-weight: 500;
+  }
+
+  .form-label {
+    color: #0d47a1;
+    font-weight: 500;
+    margin-bottom: 15px;
+    display: block;
+  }
+</style>
+
+<div class="container payment-page-container">
+  <div class="row">
+    <div class="col-lg-12 text-center">
+      <h2>Выберите способ оплаты</h2>
+      <p>Ниже представлены доступные способы оплаты. Нажмите на любой удобный вариант.</p>
+    </div>
+  </div>
+
+  <!-- Карточки способов оплаты -->
+  <div class="row">
+    {% for payment_methods in seller_payment_methods %}
+      <div class="col-lg-3 col-md-4 col-sm-6">
+        <div class="payment-method-card">
+          <img src="{{ payment_methods.qr_image.url }}" alt="{{ payment_methods.title }}">
+          <p>{{ payment_methods.title }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Форма оплаты -->
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="payment-form-container text-center">
+        <form method="post" action="." enctype="multipart/form-data">
+          {% csrf_token %}
+          <label for="checkInput" class="form-label">
+            Прикрепите чек
+          </label>
+          
+          <div class="quantity-control">
+            <button type="button" class="quantity-btn" onclick="changeQuantity(-1)">-</button>
+            <input type="number" id="quantity" name="quantity" value="1" min="1" class="quantity-input">
+            <button type="button" class="quantity-btn" onclick="changeQuantity(1)">+</button>
+          </div>
+          
+          <input type="file" name="check" id="checkInput" class="form-control check-input" required>
+          <button type="submit" class="btn btn-primary pay-button">
+            Оплатить
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function changeQuantity(amount) {
+    let input = document.getElementById('quantity');
+    let value = parseInt(input.value);
+    if (!isNaN(value)) {
+      let newValue = value + amount;
+      if (newValue >= 1) {
+        input.value = newValue;
+      }
+    }
+  }
+
+  // Выделение выбранного способа оплаты
+  document.querySelectorAll('.payment-method-card').forEach(card => {
+    card.addEventListener('click', function() {
+      document.querySelectorAll('.payment-method-card').forEach(c => {
+        c.style.borderColor = '#e0e0e0';
+        c.style.backgroundColor = '#fff';
+      });
+      this.style.borderColor = '#1e88e5';
+      this.style.backgroundColor = '#e3f2fd';
+    });
+  });
+</script>
+{% endblock %}

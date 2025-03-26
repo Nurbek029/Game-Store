@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="page-content">
+          {% if messages %}
+            <div class="container mt-4">
+              {% for message in messages %}
+                <div class="alert
+                  {% if message.tags == 'error' %}
+                    alert-danger
+                  {% elif message.tags == 'success' %}
+                    alert-success
+                  {% elif message.tags == 'warning' %}
+                    alert-warning
+                  {% else %}
+                    alert-info
+                  {% endif %}
+                  alert-dismissible fade show" role="alert"
+                >
+                  {{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <!-- ***** OTP Verification Start ***** -->
+          <div class="main-banner">
+            <div class="row">
+              <div class="col-lg-6 offset-lg-3">
+                <div class="header-text text-center">
+                  <h6>OTP Verification</h6>
+                  <h4><em>Введите</em> одноразовый код</h4>
+                  <form method="POST" action=".">
+                    {% csrf_token %}
+                    <div class="form-group mb-3">
+                      <label for="otpCode" class="form-label">OTP код</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="otpCode"
+                        name="otp_code"
+                        placeholder="Введите код из письма"
+                        required
+                      >
+                    </div>
+                    <div class="main-button">
+                      <button type="submit" class="btn btn-primary">Проверить</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- ***** OTP Verification End ***** -->
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
